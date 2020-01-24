@@ -43,24 +43,16 @@ bool blood_reservoir_empty = false;
 bool clear_reservoir_empty = false;
 
 void ProcessConfig(const std::string &configContent) {
-
    tinyxml2::XMLDocument doc;
    doc.Parse(configContent.c_str());
 
    tinyxml2::XMLHandle docHandle(&doc);
-
-   tinyxml2::XMLElement *entry = docHandle.FirstChildElement("AMMConfiguration").ToElement();
-
-   tinyxml2::XMLElement *entry2 = entry->FirstChildElement("scenario")->ToElement();
-
-   tinyxml2::XMLElement *entry3 = entry2->FirstChildElement("capabilities")->ToElement();
-
-   tinyxml2::XMLElement *entry4 = entry3->FirstChildElement("capability")->ToElement();
-
+   tinyxml2::XMLElement *entry = docHandle.FirstChildElement("Configuration").ToElement();
+   tinyxml2::XMLElement *entry4 = entry->FirstChildElement("Capability")->ToElement();
 
    //scan for capability name=fluidics
    while (entry4) {
-      if (!strcmp(entry4->ToElement()->Attribute("name"), "fluidics")) break;
+      if (!strcmp(entry4->ToElement()->Attribute("type"), "fluidics")) break;
 
       auto v = entry4->ToElement()->NextSibling();
       if (v) {
@@ -68,30 +60,18 @@ void ProcessConfig(const std::string &configContent) {
       } else break;
    }
    if (!entry4) {
-      LOG_ERROR << "cfg data didn't contain <capability name=fluidics>";
+      LOG_ERROR << "cfg data didn't contain <Capability type=fluidics>";
       return;
    }
 
+   tinyxml2::XMLElement *pressureEl = entry4->FirstChildElement("operating_pressure");
 
-   //scan for data name=operating pressure
-   tinyxml2::XMLElement *entry5 = entry4->FirstChildElement("configuration_data")->ToElement();
-
-   while (entry5) {
-      tinyxml2::XMLElement *entry5_1 = entry5->FirstChildElement("data")->ToElement();
-      if (!strcmp(entry5_1->ToElement()->Attribute("name"), "operating_pressure")) {
-         operating_pressure = entry5_1->ToElement()->FloatAttribute("value");
-         have_pressure = true;
-         LOG_INFO << "Setting operating pressure to " << operating_pressure;
-         //TODO used to send the pressure as a message here. Ensure it's getting where it needs to go in the local state
-         break;
-      }
-      auto v = entry5->ToElement()->NextSibling();
-      if (v) {
-         entry5 = v->ToElement();
-      } else break;
-   }
-
-   if (!entry5) {
+   if (pressureEl) {
+      operating_pressure = stof(pressureEl->GetText());
+      have_pressure = true;
+      LOG_INFO << "Setting operating pressure to " << operating_pressure;
+      return;
+   } else {
       LOG_ERROR << "cfg data didn't contain <data name=operating_pressure>";
    }
 
@@ -126,7 +106,7 @@ public:
 
           if (value == "START_FLUIDICS") {
              LOG_DEBUG << "Received Start Fluidics command";
-             static_filename << "static/module_configuration_static/m1s1_fluid_manager.xml";
+             static_filename << "config/fluid_manager_configuration.xml";
              std::ifstream ifs(static_filename.str());
              std::string configContent((std::istreambuf_iterator<char>(ifs)),
                                        (std::istreambuf_iterator<char>()));
