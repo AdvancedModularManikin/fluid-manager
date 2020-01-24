@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+   <Capability type="fluidics">
+      <enable>true</enable>
+      <operating_pressure>5.0</operating_pressure>
+   </Capability>
+</Configuration>
