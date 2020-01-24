@@ -50,7 +50,7 @@ void ProcessConfig(const std::string &configContent) {
    tinyxml2::XMLElement *entry = docHandle.FirstChildElement("Configuration").ToElement();
    tinyxml2::XMLElement *entry4 = entry->FirstChildElement("Capability")->ToElement();
 
-   //scan for capability name=fluidics
+   //scan for capability type=fluidics
    while (entry4) {
       if (!strcmp(entry4->ToElement()->Attribute("type"), "fluidics")) break;
 
@@ -64,6 +64,18 @@ void ProcessConfig(const std::string &configContent) {
       return;
    }
 
+   tinyxml2::XMLElement *enableEl = entry4->FirstChildElement("enable");
+   if (enableEl) {
+      std::string enableFlag = enableEl->GetText();
+      if (enableFlag == "1" || enableFlag == "true") {
+
+      } else {
+         LOG_WARNING << "Fluidics has been disabled via configuration, not setting operating pressure.";
+         return;
+      }
+   }
+
+
    tinyxml2::XMLElement *pressureEl = entry4->FirstChildElement("operating_pressure");
 
    if (pressureEl) {
@@ -74,7 +86,6 @@ void ProcessConfig(const std::string &configContent) {
    } else {
       LOG_ERROR << "cfg data didn't contain <data name=operating_pressure>";
    }
-
 }
 
 
