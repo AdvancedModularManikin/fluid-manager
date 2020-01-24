@@ -65,7 +65,7 @@ void ProcessConfig(const std::string &configContent) {
    }
 
    tinyxml2::XMLElement *enableEl = entry4->FirstChildElement("enable");
-   if (enableEl) {
+   if (enableEl != nullptr) {
       std::string enableFlag = enableEl->GetText();
       if (enableFlag == "1" || enableFlag == "true") {
 
@@ -78,7 +78,7 @@ void ProcessConfig(const std::string &configContent) {
 
    tinyxml2::XMLElement *pressureEl = entry4->FirstChildElement("operating_pressure");
 
-   if (pressureEl) {
+   if (pressureEl != nullptr) {
       operating_pressure = stof(pressureEl->GetText());
       have_pressure = true;
       LOG_INFO << "Setting operating pressure to " << operating_pressure;
