@@ -491,7 +491,7 @@ int main(int argc, char *argv[]) {
    std::thread remote_thread;//(remote_task);
    std::thread air_tank_thread;//(air_reservoir_control_task);
 
-   cout << "=== [FluidManager] Ready ..." << endl;
+   LOG_INFO << "=== [FluidManager] Starting up (not yet ready)";
    for (int i = 1; i < argc; ++i) {
       std::string arg = argv[i];
       if ((arg == "-h") || (arg == "--help")) {
@@ -504,6 +504,8 @@ int main(int argc, char *argv[]) {
       }
    }
 
+   FluidListener fl;
+
    mgr->InitializeCommand();
    mgr->InitializeSimulationControl();
 
@@ -514,8 +516,6 @@ int main(int argc, char *argv[]) {
    mgr->CreateOperationalDescriptionPublisher();
    mgr->CreateModuleConfigurationPublisher();
    mgr->CreateStatusPublisher();
-
-   FluidListener fl;
 
    mgr->CreateCommandSubscriber(&fl, &FluidListener::onNewCommand);
 
@@ -530,6 +530,9 @@ int main(int argc, char *argv[]) {
    air_tank_thread = std::thread{air_reservoir_control_task};
 
    bool closed = 0;
+
+   LOG_INFO << "=== [FluidManager] Entering runtime loop.";
+
    while (!closed) {
       if (send_status) {
          LOG_INFO << "[FluidManager] Setting status to " << current_status;
@@ -541,9 +544,11 @@ int main(int argc, char *argv[]) {
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
    }
+
    remote_thread.join();
    air_tank_thread.join();
-   cout << "=== [FluidManager] Simulation stopped." << endl;
+
+   LOG_INFO << "=== [FluidManager] Shutdown.";
 
    return 0;
 }
