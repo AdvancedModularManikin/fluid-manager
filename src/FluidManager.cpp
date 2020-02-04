@@ -487,6 +487,9 @@ void PublishConfiguration() {
 
 
 int main(int argc, char *argv[]) {
+   static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+   plog::init(plog::verbose, &consoleAppender);
+
    host_remote_init(&remote);
    std::thread remote_thread;//(remote_task);
    std::thread air_tank_thread;//(air_reservoir_control_task);
