@@ -141,7 +141,7 @@ public:
     }
 };
 
-const std::string moduleName = "AMM_Fluid_Manager";
+const std::string moduleName = "AMM_FluidManager";
 const std::string configFile = "config/fluid_manager_amm.xml";
 AMM::DDSManager<FluidListener> *mgr = new AMM::DDSManager<FluidListener>(configFile);
 AMM::UUID m_uuid;
@@ -299,6 +299,7 @@ void air_reservoir_control_task(void)
                blood_reservoir_empty = false;
                AMM::Status a;
                a.module_id(m_uuid);
+               a.module_name(moduleName);
                a.capability("blood_supply");
                a.value(AMM::StatusValue::OPERATIONAL);
                mgr->WriteStatus(a);
@@ -306,6 +307,7 @@ void air_reservoir_control_task(void)
                blood_reservoir_empty = true;
                LOG_INFO << "P2 low; blood reservoir empty";
                AMM::Status a;
+               a.module_name(moduleName);
                a.module_id(m_uuid);
                a.capability("blood_supply");
                a.message("Blood supply empty");
@@ -318,6 +320,7 @@ void air_reservoir_control_task(void)
                clear_reservoir_empty = false;
                AMM::Status a;
                a.module_id(m_uuid);
+               a.module_name(moduleName);
                a.capability("clear_supply");
                a.value(AMM::StatusValue::OPERATIONAL);
                mgr->WriteStatus(a);
@@ -325,6 +328,7 @@ void air_reservoir_control_task(void)
                clear_reservoir_empty = true;
                AMM::Status a;
                a.module_id(m_uuid);
+               a.module_name(moduleName);
                a.capability("clear_supply");
                a.message("Clear supply empty");
                a.value(AMM::StatusValue::INOPERATIVE);
@@ -542,6 +546,7 @@ int main(int argc, char *argv[]) {
          send_status = false;
          AMM::Status a;
          a.module_id(m_uuid);
+         a.module_name(moduleName);
          a.value(current_status);
          mgr->WriteStatus(a);
       }
